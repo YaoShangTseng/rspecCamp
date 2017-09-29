@@ -8,4 +8,8 @@ class CoursesController < ApplicationController
     @course = Course.find(params[:id])
   end
 
+  def new
+    @course = Course.new
+  end
+
 end
