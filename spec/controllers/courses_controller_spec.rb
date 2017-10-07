@@ -51,19 +51,16 @@ RSpec.describe CoursesController do
       #   @_user ||= create(:user)
       # end
 
-      it "assign @course" do
-
+      before do
         sign_in user
         get :new
+      end
 
+      it "assign @course" do
         expect(assigns(:course)).to be_a_new(Course)
       end
 
       it "render_template" do
-
-        sign_in user
-        get :new
-
         expect(response).to render_template("new")
       end
     end
