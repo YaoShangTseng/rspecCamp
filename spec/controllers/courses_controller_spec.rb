@@ -159,52 +159,69 @@ RSpec.describe CoursesController do
   end
 
   describe "PUT update" do
-    context "when course has title" do
-      it "assign @course" do
-        course = create(:course)
+    let(:author) { create(:user) }
+    let(:not_author) { create(:user) }
 
-        put :update, params: { id: course.id, course: { title: "Title", description: "Description" } }
+    context "sign in as author" do
+      before { sign_in author }
 
-        expect(assigns[:course]).to eq(course)
+      context "when course has title" do
+        it "assign @course" do
+          course = create(:course, user: author)
+
+          put :update, params: { id: course.id, course: { title: "Title", description: "Description" } }
+
+          expect(assigns[:course]).to eq(course)
+        end
+
+        it "changes value" do
+          course = create(:course, user: author)
+
+          put :update, params: { id: course.id, course: { title: "Title", description: "Description" } }
+
+          expect(assigns[:course].title).to eq("Title")
+          expect(assigns[:course].description).to eq("Description")
+        end
+
+        it "redirects to course_path" do
+          course = create(:course, user: author)
+
+          put :update, params: { id: course.id, course: { title: "Title", description: "Description" } }
+
+          expect(response).to redirect_to course_path(course)
+        end
       end
 
-      it "changes value" do
-        course = create(:course)
+      context "when course doesn't have title" do
+        it "doesn't update a record" do
+          course = create(:course, user: author)
 
-        put :update, params: { id: course.id, course: { title: "Title", description: "Description" } }
+          put :update, params: { id: course.id, course: { title: "", description: "Description" } }
 
-        expect(assigns[:course].title).to eq("Title")
-        expect(assigns[:course].description).to eq("Description")
-      end
+          expect(course.description).not_to eq("Description")
+        end
 
-      it "redirects to course_path" do
-        course = create(:course)
+        it "renders edit template" do
+          course = create(:course, user: author)
 
-        put :update, params: { id: course.id, course: { title: "Title", description: "Description" } }
+          put :update, params: { id: course.id, course: { title: "", description: "Description" } }
 
-        expect(response).to redirect_to course_path(course)
+          expect(response).to render_template("edit")
+        end
       end
     end
 
-    context "when course doesn't have title" do
-      it "doesn't update a record" do
-        course = create(:course)
+    context "sign in as author" do
+      before { sign_in not_author }
 
-        put :update, params: { id: course.id, course: { title: "", description: "Description" } }
+      it "raise an error" do
+        course = create(:course, user: author)
 
-        expect(course.description).not_to eq("Description")
+        expect do
+          put :update, params: { id: course.id, course: { title: "", description: "Description" } }
+        end.to raise_error ActiveRecord::RecordNotFound
       end
-
-      it "render s edit template" do
-        course = create(:course)
-
-        put :update, params: { id: course.id, course: { title: "", description: "Description" } }
-
-        expect(response).to render_template("edit")
-      end
-
     end
-
   end
 
   describe "DELETE destroy" do
