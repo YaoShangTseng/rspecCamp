@@ -75,6 +75,10 @@ RSpec.describe CoursesController do
   end
 
   describe "POST create" do
+
+    let(:user) { create(:user) }
+    before { sign_in user }
+
     context "when course doesn't have a title" do
       it "doesn't create a record" do
         expect do
@@ -91,7 +95,7 @@ RSpec.describe CoursesController do
 
     context "when course have a title" do
       it "create a new course record" do
-        course = FactoryGirl.build(:course)
+        course = build(:course)
 
         expect do
           post :create, params: { course: attributes_for(:course) }
@@ -99,7 +103,7 @@ RSpec.describe CoursesController do
       end
 
       it "redirects to courses_path" do
-        course = FactoryGirl.build(:course)
+        course = build(:course)
 
         post :create, params: { course: attributes_for(:course) }
 
