@@ -1,5 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe Course, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+RSpec.describe Course do
+  it { is_expected.to validate_presence_of(:title) }
+  # equals to
+  # it { expect(subject).to validate_presence_of(:title) }
 end
